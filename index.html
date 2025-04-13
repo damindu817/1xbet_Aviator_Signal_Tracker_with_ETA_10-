@@ -1,205 +1,181 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Aviator 10x Signal Tracker</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aviator 10x Signal Tracker</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<style>
+    :root {
+      --bg: #1b1b2f;
+      --text: #ffffff;
+      --accent: #ff4c29;
+      --card: #222831;
+      --outline: rgba(255, 76, 41, 0.4);
+      --highlight: rgba(255, 76, 41, 0.1);
+    }
+
+    [data-theme="light"] {
+      --bg: #f4f4f4;
+      --text: #111;
+      --accent: #007bff;
+      --card: #ffffff;
+      --outline: rgba(0, 123, 255, 0.4);
+      --highlight: rgba(0, 123, 255, 0.1);
+    }
+
     body {
+      background: var(--bg);
+      color: var(--text);
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(145deg, #1b1b2f, #162447);
-      color: #ffffff;
-      text-align: center;
       padding: 20px;
-      overflow-x: hidden;
+      transition: background 0.3s, color 0.3s;
     }
 
     h1 {
-      font-size: 2.6em;
-      color: #ffffff;
-      background-color: rgba(255, 76, 41, 0.1);
-      border: 1px solid rgba(255, 76, 41, 0.4);
-      border-left: 6px solid #ff4c29;
+      font-size: 2.4em;
       padding: 14px 20px;
+      border: 1px solid var(--outline);
+      border-left: 6px solid var(--accent);
+      background-color: var(--highlight);
       border-radius: 8px;
+      box-shadow: 0 2px 8px var(--outline);
       display: inline-block;
-      box-shadow: 0 2px 8px rgba(255, 76, 41, 0.25);
-      margin-bottom: 30px;
     }
 
     .signal {
       font-size: 1.8em;
-      color: #ffcc00;
-      background-color: rgba(255, 204, 0, 0.08);
-      border: 1px solid rgba(255, 204, 0, 0.3);
+      border: 1px solid var(--outline, #ffcc00);
       border-left: 6px solid #ffcc00;
-      padding: 12px 18px;
-      border-radius: 8px;
-      display: inline-block;
-      box-shadow: 0 2px 6px rgba(255, 204, 0, 0.2);
-      margin-bottom: 15px;
-    }
-
-    .signal.loading-text::after {
-      content: ' ';
-      display: inline-block;
-      animation: dots 1.2s steps(3, end) infinite;
-      width: 1.5em;
-      text-align: left;
-    }
-
-    @keyframes dots {
-      0% { content: ''; }
-      33% { content: '.'; }
-      66% { content: '..'; }
-      100% { content: '...'; }
-    }
-
-    .eta {
-      color: #ffffff;
-      margin-top: 10px;
-      font-size: 1.2em;
-      text-shadow: 0 0 10px #ffffff;
-    }
-
-    .log, .input-area {
-      background: rgba(34, 40, 49, 0.9);
-      padding: 25px;
-      border-radius: 16px;
-      max-width: 640px;
-      margin: 25px auto;
-      box-shadow: 0 0 20px rgba(255, 76, 41, 0.3), 0 0 40px rgba(255, 76, 41, 0.15);
-      backdrop-filter: blur(8px);
-      transition: all 0.3s ease-in-out;
-    }
-
-    input, button {
+      background-color: rgba(255, 204, 0, 0.08);
       padding: 12px;
-      margin: 8px;
-      font-size: 1em;
       border-radius: 8px;
-      border: none;
-      outline: none;
-      box-shadow: inset 0 0 8px rgba(0,0,0,0.5);
     }
 
-    input {
-      background: #393e46;
-      color: #ffcc00;
-      width: 100px;
-      text-align: center;
+    .eta, .log, #historyLog {
+      margin-top: 20px;
     }
 
-    button {
-      background: #ff4c29;
-      color: #ffffff;
-      cursor: pointer;
-      font-weight: bold;
-      transition: 0.3s;
-      box-shadow: 0 0 12px #ff4c29, 0 0 24px #ff4c29;
-    }
-
-    button:hover {
-      background: #ff652f;
-      box-shadow: 0 0 16px #ff652f, 0 0 32px #ff652f;
+    #historyLog {
+      border: 1px solid var(--outline);
+      padding: 15px;
+      border-radius: 10px;
+      background-color: var(--highlight);
+      max-height: 200px;
+      overflow-y: auto;
     }
 
     footer {
       margin-top: 40px;
-      font-size: 0.95em;
-      color: #cccccc;
+      color: var(--text);
+      opacity: 0.6;
     }
-  </style>
+
+    /* Extra animation keyframe left unfinished — not used in this page */
+</style>
 </head>
 <body>
-  <h1>Aviator 10x Signal Tracker</h1>
-  <div class="signal loading-text" id="signal">Waiting for 10x signal</div>
+<script>
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.body.setAttribute('data-theme', 'light');
+    } else {
+      document.body.setAttribute('data-theme', 'dark');
+    }
+</script>
+<div class="container text-center">
+  <h1 class="mb-4">Aviator 10x Signal Tracker</h1>
+  <div class="signal" id="signal">Waiting for 10x signal...</div>
   <div class="eta" id="eta"></div>
-
-  <div class="input-area">
-    <h3>Enter Last 5 Odds to Track 10x Signal</h3>
-    <input type="number" step="0.01" id="odd1" placeholder="Odd 1">
-    <input type="number" step="0.01" id="odd2" placeholder="Odd 2">
-    <input type="number" step="0.01" id="odd3" placeholder="Odd 3">
-    <input type="number" step="0.01" id="odd4" placeholder="Odd 4">
-    <input type="number" step="0.01" id="odd5" placeholder="Odd 5">
-    <br>
-    <button onclick="update()">Check Signal</button>
-    <button onclick="clearFields()">Clear</button>
+  <div class="row g-2 justify-content-center mt-4">
+    <div class="col-6 col-sm-2"><input class="form-control" id="odd1" placeholder="Odd 1" type="number"/></div>
+    <div class="col-6 col-sm-2"><input class="form-control" id="odd2" placeholder="Odd 2" type="number"/></div>
+    <div class="col-6 col-sm-2"><input class="form-control" id="odd3" placeholder="Odd 3" type="number"/></div>
+    <div class="col-6 col-sm-2"><input class="form-control" id="odd4" placeholder="Odd 4" type="number"/></div>
+    <div class="col-6 col-sm-2"><input class="form-control" id="odd5" placeholder="Odd 5" type="number"/></div>
   </div>
-
+  <div class="mt-3">
+    <button class="btn btn-warning" onclick="update()">Check Signal</button>
+    <button class="btn btn-secondary" onclick="clearFields()">Clear</button>
+  </div>
   <div class="log" id="log"></div>
-
+  <div id="historyLog"></div>
+  <div class="mt-3">
+    <button class="btn btn-danger" onclick="resetHistory()">Reset History</button>
+  </div>
   <footer>Powered by XTREME Predictor</footer>
+</div>
+<script>
+    let signalHistory = [];
 
-  <script>
-    function detectSignal(history) {
-      const superHighOdds = history.filter(o => o >= 10);
-      if (superHighOdds.length >= 1) {
-        return 'Super Signal! 10x may hit soon!';
-      } else {
-        return 'No 10x pattern detected.';
+    window.onload = () => {
+      const saved = localStorage.getItem("aviatorSignalHistory");
+      if (saved) {
+        signalHistory = JSON.parse(saved);
+        updateHistoryLog();
       }
+    };
+
+    function detectSignal(history) {
+      return history.filter(o => o >= 10).length >= 1 ? 'Super Signal! 10x may hit soon!' : 'No 10x pattern detected.';
     }
 
     function estimateNextTime(history) {
-      const positions = [];
-      history.forEach((val, index) => {
-        if (val >= 10) positions.push(index);
-      });
-
-      if (positions.length >= 1) {
-        const etaMinutes = 3;
+      const highs = history.map((v, i) => v >= 10 ? i : -1).filter(i => i !== -1);
+      if (highs.length >= 2) {
+        const gaps = highs.map((v, i, a) => i ? v - a[i - 1] : 0).slice(1);
+        const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
         const now = new Date();
-        now.setMinutes(now.getMinutes() + etaMinutes);
+        now.setMinutes(now.getMinutes() + Math.round(avgGap * 1.5));
+        return 'Expected next 10x around: ' + now.toLocaleTimeString();
+      } else if (highs.length === 1) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + 3);
         return 'Expected time for 10x: ' + now.toLocaleTimeString();
-      } else {
-        return '';
       }
+      return '';
     }
 
     function update() {
-      const odds = [
-        parseFloat(document.getElementById('odd1').value),
-        parseFloat(document.getElementById('odd2').value),
-        parseFloat(document.getElementById('odd3').value),
-        parseFloat(document.getElementById('odd4').value),
-        parseFloat(document.getElementById('odd5').value)
-      ];
-
-      const signalDiv = document.getElementById('signal');
-
-      if (odds.some(isNaN)) {
-        signalDiv.textContent = 'Please enter all 5 odds';
-        signalDiv.classList.remove('loading-text');
-        document.getElementById('eta').textContent = '';
-        return;
-      }
-
+      const odds = [1,2,3,4,5].map(i => parseFloat(document.getElementById('odd'+i).value));
+      if (odds.some(isNaN)) return alert("Please enter all 5 odds");
       const signal = detectSignal(odds);
+      
+      const signalDiv = document.getElementById('signal');
       signalDiv.textContent = signal;
-      signalDiv.classList.remove('loading-text');
-      document.getElementById('log').innerHTML = '<strong>Entered Odds:</strong> ' + odds.join(', ');
+      signalDiv.style.color = '#ffcc00';
+      signalDiv.style.background = 'rgba(255, 204, 0, 0.08)';
+      signalDiv.style.borderLeft = '6px solid #ffcc00';
+      signalDiv.style.padding = '12px';
+      signalDiv.style.borderRadius = '8px';
+      document.getElementById('eta').textContent = estimateNextTime(odds);
+      document.getElementById('log').innerHTML = `<strong>Odds:</strong> ${odds.join(', ')}`;
+      signalHistory.push({ time: new Date().toLocaleTimeString(), signal, odds });
+      updateHistoryLog();
+    }
 
-      if (signal.includes('10x')) {
-        const eta = estimateNextTime(odds);
-        document.getElementById('eta').textContent = eta;
-      } else {
-        document.getElementById('eta').textContent = '';
+    function updateHistoryLog() {
+      localStorage.setItem("aviatorSignalHistory", JSON.stringify(signalHistory));
+      let html = '<h3>Signal History</h3>';
+      signalHistory.slice().reverse().forEach(s => {
+        html += `<p><strong>${s.time}</strong>: ${s.signal} | Odds: ${s.odds.join(', ')}</p>`;
+      });
+      document.getElementById('historyLog').innerHTML = html;
+    }
+
+    function resetHistory() {
+      if (confirm("Clear all history?")) {
+        signalHistory = [];
+        localStorage.removeItem("aviatorSignalHistory");
+        updateHistoryLog();
       }
     }
 
     function clearFields() {
-      for (let i = 1; i <= 5; i++) {
-        document.getElementById('odd' + i).value = '';
-      }
-      const signalDiv = document.getElementById('signal');
-      signalDiv.textContent = 'Waiting for 10x signal';
-      signalDiv.classList.add('loading-text');
+      for (let i = 1; i <= 5; i++) document.getElementById('odd' + i).value = '';
+      document.getElementById('signal').textContent = 'Waiting for 10x signal';
       document.getElementById('eta').textContent = '';
       document.getElementById('log').innerHTML = '';
     }
-  </script>
+</script>
 </body>
 </html>
