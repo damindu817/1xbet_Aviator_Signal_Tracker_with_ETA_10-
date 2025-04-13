@@ -14,7 +14,6 @@
       --outline: rgba(255, 76, 41, 0.4);
       --highlight: rgba(255, 76, 41, 0.1);
     }
-
     [data-theme="light"] {
       --bg: #f4f4f4;
       --text: #111;
@@ -23,7 +22,6 @@
       --outline: rgba(0, 123, 255, 0.4);
       --highlight: rgba(0, 123, 255, 0.1);
     }
-
     body {
       background: var(--bg);
       color: var(--text);
@@ -31,7 +29,6 @@
       padding: 20px;
       transition: background 0.3s, color 0.3s;
     }
-
     h1 {
       font-size: 2.4em;
       padding: 14px 20px;
@@ -42,7 +39,6 @@
       box-shadow: 0 2px 8px var(--outline);
       display: inline-block;
     }
-
     .signal {
       font-size: 1.8em;
       border: 1px solid var(--outline, #ffcc00);
@@ -51,11 +47,9 @@
       padding: 12px;
       border-radius: 8px;
     }
-
     .eta, .log, #historyLog {
       margin-top: 20px;
     }
-
     #historyLog {
       border: 1px solid var(--outline);
       padding: 15px;
@@ -64,14 +58,11 @@
       max-height: 200px;
       overflow-y: auto;
     }
-
     footer {
       margin-top: 40px;
       color: var(--text);
       opacity: 0.6;
     }
-
-    /* Extra animation keyframe left unfinished — not used in this page */
 </style>
 </head>
 <body>
@@ -116,7 +107,7 @@
     };
 
     function detectSignal(history) {
-      return history.filter(o => o >= 10).length >= 1 ? 'Super Signal! 10x may hit soon!' : 'No 10x pattern detected.';
+      return history.filter(o => o >= 10).length >= 1 ? 'Super Signal! 10x may hit soon!' : '10x සංඥාවක් සොයාගත නොහැක.';
     }
 
     function estimateNextTime(history) {
@@ -126,11 +117,11 @@
         const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
         const now = new Date();
         now.setMinutes(now.getMinutes() + Math.round(avgGap * 1.5));
-        return 'Expected next 10x around: ' + now.toLocaleTimeString();
+        return 'ඊළඟ 10x එන්න ඇති වේලාව: ' + now.toLocaleTimeString();
       } else if (highs.length === 1) {
         const now = new Date();
         now.setMinutes(now.getMinutes() + 3);
-        return 'Expected time for 10x: ' + now.toLocaleTimeString();
+        return 'ඊළඟ 10x සඳහා කාලය: ' + now.toLocaleTimeString();
       }
       return '';
     }
@@ -142,11 +133,17 @@
       
       const signalDiv = document.getElementById('signal');
       signalDiv.textContent = signal;
-      signalDiv.style.color = '#ffcc00';
-      signalDiv.style.background = 'rgba(255, 204, 0, 0.08)';
-      signalDiv.style.borderLeft = '6px solid #ffcc00';
-      signalDiv.style.padding = '12px';
-      signalDiv.style.borderRadius = '8px';
+
+      if (signal.includes('Super Signal')) {
+        signalDiv.style.color = '#ffcc00';
+        signalDiv.style.background = 'rgba(255, 204, 0, 0.08)';
+        signalDiv.style.borderLeft = '6px solid #ffcc00';
+      } else {
+        signalDiv.style.color = 'inherit';
+        signalDiv.style.background = 'inherit';
+        signalDiv.style.borderLeft = '6px solid var(--outline)';
+      }
+
       document.getElementById('eta').textContent = estimateNextTime(odds);
       document.getElementById('log').innerHTML = `<strong>Odds:</strong> ${odds.join(', ')}`;
       signalHistory.push({ time: new Date().toLocaleTimeString(), signal, odds });
@@ -172,7 +169,11 @@
 
     function clearFields() {
       for (let i = 1; i <= 5; i++) document.getElementById('odd' + i).value = '';
-      document.getElementById('signal').textContent = 'Waiting for 10x signal';
+      const signalDiv = document.getElementById('signal');
+      signalDiv.textContent = 'Waiting for 10x signal...';
+      signalDiv.style.color = 'inherit';
+      signalDiv.style.background = 'inherit';
+      signalDiv.style.borderLeft = '6px solid var(--outline)';
       document.getElementById('eta').textContent = '';
       document.getElementById('log').innerHTML = '';
     }
