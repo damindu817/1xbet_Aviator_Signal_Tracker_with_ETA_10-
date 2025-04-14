@@ -6,6 +6,9 @@
 <title>Aviator 10x Signal Tracker</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <style>
+    .signal {
+        border-left: 5px solid #ffcc00 !important;
+    }
     :root {
       --bg: #1b1b2f;
       --text: #ffffff;
@@ -13,14 +16,6 @@
       --card: #222831;
       --outline: rgba(255, 76, 41, 0.4);
       --highlight: rgba(255, 76, 41, 0.1);
-    }
-    [data-theme="light"] {
-      --bg: #f4f4f4;
-      --text: #111;
-      --accent: #007bff;
-      --card: #ffffff;
-      --outline: rgba(0, 123, 255, 0.4);
-      --highlight: rgba(0, 123, 255, 0.1);
     }
     body {
       background: var(--bg);
@@ -41,11 +36,12 @@
     }
     .signal {
       font-size: 1.8em;
-      border: 1px solid var(--outline, #ffcc00);
+      border: 1px solid #ffcc00;
       border-left: 6px solid #ffcc00;
       background-color: rgba(255, 204, 0, 0.08);
       padding: 12px;
       border-radius: 8px;
+      box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
     }
     .eta, .log, #historyLog {
       margin-top: 20px;
@@ -65,14 +61,7 @@
     }
 </style>
 </head>
-<body>
-<script>
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-      document.body.setAttribute('data-theme', 'light');
-    } else {
-      document.body.setAttribute('data-theme', 'dark');
-    }
-</script>
+<body data-theme="dark">
 <div class="container text-center">
   <h1 class="mb-4">Aviator 10x Signal Tracker</h1>
   <div class="signal" id="signal">Waiting for 10x signal...</div>
@@ -107,7 +96,7 @@
     };
 
     function detectSignal(history) {
-      return history.filter(o => o >= 10).length >= 1 ? 'Super Signal! 10x may hit soon!' : '10x සංඥාවක් සොයාගත නොහැක.';
+      return history.filter(o => o >= 10).length >= 1 ? 'Super Signal! 10x may hit soon!' : 'No 10x signal detected.';
     }
 
     function estimateNextTime(history) {
@@ -117,11 +106,11 @@
         const avgGap = gaps.reduce((a, b) => a + b, 0) / gaps.length;
         const now = new Date();
         now.setMinutes(now.getMinutes() + Math.round(avgGap * 1.5));
-        return 'ඊළඟ 10x එන්න ඇති වේලාව: ' + now.toLocaleTimeString();
+        return 'Expected time for next 10x: ' + now.toLocaleTimeString();
       } else if (highs.length === 1) {
         const now = new Date();
         now.setMinutes(now.getMinutes() + 3);
-        return 'ඊළඟ 10x සඳහා කාලය: ' + now.toLocaleTimeString();
+        return 'Estimated time for next 10x: ' + now.toLocaleTimeString();
       }
       return '';
     }
@@ -138,10 +127,12 @@
         signalDiv.style.color = '#ffcc00';
         signalDiv.style.background = 'rgba(255, 204, 0, 0.08)';
         signalDiv.style.borderLeft = '6px solid #ffcc00';
+        signalDiv.style.boxShadow = '0 0 10px rgba(255, 204, 0, 0.5)';
       } else {
-        signalDiv.style.color = 'inherit';
-        signalDiv.style.background = 'inherit';
+        signalDiv.style.color = '#ffcc00';
+        signalDiv.style.background = 'rgba(255, 204, 0, 0.08)';
         signalDiv.style.borderLeft = '6px solid var(--outline)';
+        signalDiv.style.boxShadow = '0 0 10px rgba(255, 204, 0, 0.5)';
       }
 
       document.getElementById('eta').textContent = estimateNextTime(odds);
@@ -171,9 +162,10 @@
       for (let i = 1; i <= 5; i++) document.getElementById('odd' + i).value = '';
       const signalDiv = document.getElementById('signal');
       signalDiv.textContent = 'Waiting for 10x signal...';
-      signalDiv.style.color = 'inherit';
-      signalDiv.style.background = 'inherit';
+      signalDiv.style.color = '#ffcc00';
+      signalDiv.style.background = 'rgba(255, 204, 0, 0.08)';
       signalDiv.style.borderLeft = '6px solid var(--outline)';
+      signalDiv.style.boxShadow = '0 0 10px rgba(255, 204, 0, 0.5)';
       document.getElementById('eta').textContent = '';
       document.getElementById('log').innerHTML = '';
     }
